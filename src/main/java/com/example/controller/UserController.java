@@ -101,10 +101,10 @@ public class UserController {
 
 	@RequestMapping("/insert")
 	public String index02(String key, Model model) {
-		List<Authentication> authenticationList = userService.findByKey(key);
-		if (authenticationList == null) {
-			return "authentication_error.html";
-		}
+//		List<Authentication> authenticationList = userService.findByKey(key);
+//		if (authenticationList == null) {
+//			return "authentication_error.html";
+//		}
 		session.setAttribute("key", key);
 		System.out.println(key);
 		return "register_user.html";
@@ -114,8 +114,10 @@ public class UserController {
 	public String insert(@Validated UserForm form, BindingResult result, RedirectAttributes redirectAttributes,
 			Model model) {
 		String key = (String) session.getAttribute("key");
-		System.out.println(key);
-		if (key == null) {
+		List<Authentication> authenticationList = userService.findByKey(key);
+
+		// URLを発行せずに/finishedにアクセスした場合URL発行画面に遷移
+		if (authenticationList == null) {
 			return "redirect:/register";
 		}
 		if (result.hasErrors()) {
@@ -125,7 +127,7 @@ public class UserController {
 			model.addAttribute("message", "パスワードが一致しません");
 			return "register_user.html";
 		}
-		List<Authentication> authenticationList = userService.findByKey(key);
+
 		User user = new User();
 		BeanUtils.copyProperties(form, user);
 		user.setMailAddress(authenticationList.get(0).getMailAddress());
