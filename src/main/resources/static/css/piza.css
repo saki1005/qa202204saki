@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+/* サイズをオレンジ〇で囲む */
+span.price {
+  /* サイズ指定 */
+  width: 175px;
+  height: 175px;
+  /* 背景色 */
+  background-color: #ff4500;
+  /* 角を丸くする */
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+}
+/* 合計金額の文字の大きさを変える */
+span#total-price {
+  font-size: 35px;
+}
+
+/* 商品一覧の画像を中央寄せにする*/
+.item-img-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+/* 商品一覧のセルを固定幅にする*/
+.item-list-table {
+  table-layout: fixed;
+}
+
+th {
+  text-align: center;
+}
+
+.contents {
+    display: flex;
+    flex-wrap: wrap;
+}
+.contents > div {
+    width: 33.3333%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+.contents img {
+    width:  100%;
+    height: 300px;
+    object-fit: cover;
+}
+.next.disable,
+.prev.disable {
+    pointer-events: none;
+    background: #ddd;
+}
+
+.pagination{
+	
+}

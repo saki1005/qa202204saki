@@ -1,0 +1,30 @@
+--ユーザー
+drop table if exists users cascade;
+
+create table users (
+id serial primary key
+, name varchar(20) not null
+, ruby varchar(30) not null
+, mail_address varchar(50) not null
+, zip_code varchar(8) not null
+, address varchar(200) not null
+, telephone varchar(15) not null
+, password varchar(100) not null
+, register_user Integer
+, register_date Timestamp not null default 'now'
+, update_user Integer
+, update_date Timestamp not null default 'now'
+, deleted Integer not null default 0
+) ;
+
+--登録URL送信--
+
+drop table if exists authentications cascade;
+
+create table authentications (
+id serial primary key
+, mail_address varchar(50) not null
+, unique_key varchar(50) not null
+, register_date Timestamp not null default 'now'
+, deleted Integer not null default 0
+) ;
