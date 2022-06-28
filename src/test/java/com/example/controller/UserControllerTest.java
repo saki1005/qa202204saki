@@ -19,7 +19,6 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -52,9 +51,6 @@ class UserControllerTest {
 	private WebApplicationContext wac;
 
 	private MockMvc mockMvc;
-
-	@Autowired
-	private JdbcTemplate template;
 
 	@Mock
 	@Autowired
@@ -105,14 +101,6 @@ class UserControllerTest {
 		mockMvc.perform(get("/register/email-submit").param("mailAddress", "skweb39@gmail.com"))
 				.andExpect(view().name("redirect:/register/email-finished")).andReturn();
 	}
-//
-//	@Test
-//	@DisplayName("URLが発行できた場合：DB登録＆送信完了画面に遷移")
-//	@DatabaseSetup("classpath:email_submit_01-3.xlsx")
-//	void emailSubmit_03() throws Exception {
-//		mockMvc.perform(get("/register/email-submit").param("mailAddress", "skweb39@gmail.com"))
-//				.andExpect(view().name("redirect:/register/email-finished")).andReturn();
-//	}
 
 	@Test
 	@DisplayName("メールアドレス重複の場合送信完了画面表示")

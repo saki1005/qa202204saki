@@ -63,31 +63,24 @@ public class UserController {
 		userList = userService.findByMailAddress(email);
 
 		// 有効なURLがはっこうされていたらエラー
-		if (authenticationList != null) {
-			String mes = "すでに登録URLが発行されています。";
-			model.addAttribute("message", mes);
+		if (authenticationList.size() != 0) {
+			result.rejectValue("mailAddress", null, "すでに有効なURLが発行されています。");
 			return index(model);
 
 		}
 		// メアド重複の場合送信完了画面へ
-		if (userList != null) {
-			String registEmail = userList.get(0).getMailAddress();
-			if (form.getMailAddress().equals(registEmail)) {
+		if (userList.size() != 0) {
+			if (form.getMailAddress().equals(userList.get(0).getMailAddress())) {
 				System.out.println("ユーザー重複");
 				return "redirect:/register/email-finished";
 			}
 		}
 		// 重複していない場合はkey発行、DB登録、メール送信、送信完了画面へ
-		String uniqueKey = UUID.randomUUID().toString();
-		// DB登録
-		Authentication authentication = new Authentication();
-		authentication.setMailAddress(email);
-		authentication.setUniqueKey(uniqueKey);
-		authentication.setDeleted(0);
-		userService.insertAuthentication(authentication);
-		System.out.println("DB登録");
+		String key = UUID.randomUUID().toString();
+		userService.insertAuthentication(email, key);
+
 		// メール送信（service）
-		String url = mailService.generateUrl(uniqueKey);
+		String url = mailService.generateUrl(key);
 		mailService.sendHtmlMail(email, url);
 
 		System.out.println("送信完了");
@@ -101,10 +94,11 @@ public class UserController {
 
 	@RequestMapping("/insert")
 	public String index02(String key, Model model) {
-//		List<Authentication> authenticationList = userService.findByKey(key);
-//		if (authenticationList == null) {
-//			return "authentication_error.html";
-//		}
+//		 keyを発行してない状態で/insertにアクセスしようとしたらエラーにしたい
+		List<Authentication> authenticationList = userService.findByKey(key);
+		if (authenticationList.size() == 0) {
+			return "authentication_error.html";
+		}
 		session.setAttribute("key", key);
 		System.out.println(key);
 		return "register_user.html";
@@ -116,15 +110,15 @@ public class UserController {
 		String key = (String) session.getAttribute("key");
 		List<Authentication> authenticationList = userService.findByKey(key);
 
-		// URLを発行せずに/finishedにアクセスした場合URL発行画面に遷移
-		if (authenticationList == null) {
+		// URLが無効になっていた場合初期画面へ
+		if (authenticationList.size() == 0) {
 			return "redirect:/register";
 		}
 		if (result.hasErrors()) {
 			return "register_user.html";
 		}
 		if (!(form.getPassword().equals(form.getConfirmPassword()))) {
-			model.addAttribute("message", "パスワードが一致しません");
+			result.rejectValue("confirmPassword", null, "パスワードが一致しません");
 			return "register_user.html";
 		}
 

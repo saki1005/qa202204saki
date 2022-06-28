@@ -29,7 +29,11 @@ public class UserService {
 		return userList;
 	}
 
-	public void insertAuthentication(Authentication authentication) {
+	public void insertAuthentication(String email, String key) {
+		Authentication authentication = new Authentication();
+		authentication.setMailAddress(email);
+		authentication.setUniqueKey(key);
+		authentication.setDeleted(0);
 		repository.insertAuthentication(authentication);
 	}
 

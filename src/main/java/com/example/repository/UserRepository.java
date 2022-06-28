@@ -37,12 +37,9 @@ public class UserRepository {
 		String sql = "SELECT * FROM authentications WHERE mail_address = :mailAddress AND deleted=0 AND register_date > (select now() + cast('-1 days' as INTERVAL))";
 
 		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress", email);
-		List<Authentication> registUrlList = template.query(sql, param, AUTHENTICATION_ROW_MAPPER);
-		if (registUrlList.size() == 0) {
-			return null;
-		}
-		System.out.println(registUrlList);
-		return registUrlList;
+		List<Authentication> authenticationList = template.query(sql, param, AUTHENTICATION_ROW_MAPPER);
+		System.out.println(authenticationList);
+		return authenticationList;
 	}
 
 	public void insertAuthentication(Authentication authentication) {
@@ -53,12 +50,9 @@ public class UserRepository {
 	}
 
 	public List<Authentication> findByKey(String key) {
-		String sql = "SELECT * FROM authentications WHERE unique_key=:key AND deleted=0";
+		String sql = "SELECT * FROM authentications WHERE unique_key=:key AND register_date > (select now() + cast('-1 days' as INTERVAL)) AND deleted=0";
 		SqlParameterSource param = new MapSqlParameterSource().addValue("key", key);
 		List<Authentication> authenticationList = template.query(sql, param, AUTHENTICATION_ROW_MAPPER);
-		if (authenticationList.size() == 0) {
-			return null;
-		}
 		return authenticationList;
 	}
 
@@ -73,10 +67,6 @@ public class UserRepository {
 
 		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress", email);
 		List<User> userList = template.query(sql, param, USER_ROW_MAPPER);
-		if (userList.size() == 0) {
-			return null;
-		}
-		System.out.println(userList);
 		return userList;
 	}
 
