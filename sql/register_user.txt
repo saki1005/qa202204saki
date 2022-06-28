@@ -11,9 +11,9 @@ id serial primary key
 , telephone varchar(15) not null
 , password varchar(100) not null
 , register_user Integer
-, register_date Timestamp not null default 'now'
+, register_date Timestamp not null default LOCALTIMESTAMP
 , update_user Integer
-, update_date Timestamp not null default 'now'
+, update_date Timestamp not null default LOCALTIMESTAMP
 , deleted Integer not null default 0
 ) ;
 
@@ -25,6 +25,6 @@ create table authentications (
 id serial primary key
 , mail_address varchar(50) not null
 , unique_key varchar(50) not null
-, register_date Timestamp not null default 'now'
+, register_date Timestamp not null default LOCALTIMESTAMP 
 , deleted Integer not null default 0
 ) ;
