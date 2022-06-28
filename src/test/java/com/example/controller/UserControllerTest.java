@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mockStatic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -23,12 +22,10 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.example.service.MailService;
+import com.example.service.AuthenticationService;
 import com.example.util.SessionUtil;
 import com.example.util.XlsDataSetLoader;
 import com.github.springtestdbunit.TransactionDbUnitTestExecutionListener;
@@ -54,7 +51,7 @@ class UserControllerTest {
 
 	@Mock
 	@Autowired
-	private MailService mailService;
+	private AuthenticationService authenticationService;
 
 	@InjectMocks
 	private UserController userController;
@@ -89,8 +86,7 @@ class UserControllerTest {
 	@DisplayName("メール送信画面で入力値エラーがあった場合同じページを表示")
 	void emailSubmit_01() throws Exception {
 		mockMvc.perform(get("/register/email-submit").param("mailAddress", ""))
-				.andExpect(view().name("email_submit.html"))
-				.andReturn();
+				.andExpect(view().name("email_submit.html")).andReturn();
 	}
 
 	@Test
@@ -114,11 +110,8 @@ class UserControllerTest {
 	@DisplayName("すでに有効なURLが発行されていたらエラーメッセージを表示")
 	@DatabaseSetup("classpath:email_submit_01.xlsx")
 	void emailSubmit_04() throws Exception {
-		MvcResult mvcResult = mockMvc.perform(get("/register/email-submit").param("mailAddress", "skweb39@gmail.com"))
+		mockMvc.perform(get("/register/email-submit").param("mailAddress", "skweb39@gmail.com"))
 				.andExpect(view().name("email_submit.html")).andReturn();
-		ModelAndView mav = mvcResult.getModelAndView();
-		String mes = (String) mav.getModel().get("message");
-		assertEquals("すでに登録URLが発行されています。", mes, "メッセージが正しく取得できませんでした");
 	}
 
 	@Test
@@ -146,14 +139,10 @@ class UserControllerTest {
 	@DatabaseSetup("classpath:email_submit_03-2.xlsx")
 	void insert_03() throws Exception {
 		MockHttpSession keySession = SessionUtil.createKeySession();
-		MvcResult mvcResult = mockMvc
-				.perform(get("/register/finished").session(keySession).param("name", "山田太郎").param("ruby", "やまだたろう")
+		mockMvc.perform(get("/register/finished").session(keySession).param("name", "山田太郎").param("ruby", "やまだたろう")
 				.param("zipCode", "000-0000").param("address", "東京都新宿区").param("telephone", "000-0000-0000")
-						.param("password", "test").param("confirmPassword", "miss"))
+				.param("password", "test").param("confirmPassword", "miss"))
 				.andExpect(view().name("register_user.html")).andReturn();
-		ModelAndView mav = mvcResult.getModelAndView();
-		String mes = (String) mav.getModel().get("message");
-		assertEquals("パスワードが一致しません", mes, "メッセージの取得に失敗しました");
 	}
 
 	@Test
@@ -183,5 +172,11 @@ class UserControllerTest {
 	@DisplayName("/registerにアクセスしたらメール送信画面を表示")
 	void email_finished_0() throws Exception {
 		mockMvc.perform(get("/register/toFinished")).andExpect(view().name("register_finished")).andReturn();
+	}
+
+	@Test
+	@DisplayName("/keyがない状態で/insertにアクセスしたらエラーページへ")
+	void index_02() throws Exception {
+		mockMvc.perform(get("/register/insert")).andExpect(view().name("authentication_error.html")).andReturn();
 	}
 }

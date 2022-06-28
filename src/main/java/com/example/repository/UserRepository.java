@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
-import com.example.domain.Authentication;
 import com.example.domain.User;
 
 /**
@@ -23,8 +22,7 @@ import com.example.domain.User;
 
 @Repository
 public class UserRepository {
-	private static final RowMapper<Authentication> AUTHENTICATION_ROW_MAPPER = new BeanPropertyRowMapper<>(
-			Authentication.class);
+
 	private static final RowMapper<User> USER_ROW_MAPPER = new BeanPropertyRowMapper<>(User.class);
 
 	@Autowired
@@ -32,29 +30,6 @@ public class UserRepository {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-
-	public List<Authentication> findAuthentication(String email) {
-		String sql = "SELECT * FROM authentications WHERE mail_address = :mailAddress AND deleted=0 AND register_date > (select now() + cast('-1 days' as INTERVAL))";
-
-		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress", email);
-		List<Authentication> authenticationList = template.query(sql, param, AUTHENTICATION_ROW_MAPPER);
-		System.out.println(authenticationList);
-		return authenticationList;
-	}
-
-	public void insertAuthentication(Authentication authentication) {
-		String sql = "INSERT INTO authentications(mail_address, unique_key, deleted)"
-				+ " VALUES(:mailAddress, :uniqueKey, :deleted);";
-		SqlParameterSource param = new BeanPropertySqlParameterSource(authentication);
-		template.update(sql, param);
-	}
-
-	public List<Authentication> findByKey(String key) {
-		String sql = "SELECT * FROM authentications WHERE unique_key=:key AND register_date > (select now() + cast('-1 days' as INTERVAL)) AND deleted=0";
-		SqlParameterSource param = new MapSqlParameterSource().addValue("key", key);
-		List<Authentication> authenticationList = template.query(sql, param, AUTHENTICATION_ROW_MAPPER);
-		return authenticationList;
-	}
 
 	public void updateAuthentication(String key) {
 		String sql = "UPDATE authentications SET deleted=1 WHERE unique_key=:key";

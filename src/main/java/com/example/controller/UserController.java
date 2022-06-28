@@ -19,7 +19,7 @@ import com.example.domain.Authentication;
 import com.example.domain.User;
 import com.example.form.EmailSubmitForm;
 import com.example.form.UserForm;
-import com.example.service.MailService;
+import com.example.service.AuthenticationService;
 import com.example.service.UserService;
 
 @Controller
@@ -29,7 +29,8 @@ public class UserController {
 	private UserService userService;
 
 	@Autowired
-	private MailService mailService;
+	private AuthenticationService authenticationService;
+
 
 	@Autowired
 	private HttpSession session;
@@ -59,7 +60,7 @@ public class UserController {
 		String email = form.getMailAddress();
 		List<Authentication> authenticationList = null;
 		List<User> userList = null;
-		authenticationList = userService.findAuthentication(email);
+		authenticationList = authenticationService.findAuthentication(email);
 		userList = userService.findByMailAddress(email);
 
 		// 有効なURLがはっこうされていたらエラー
@@ -77,11 +78,11 @@ public class UserController {
 		}
 		// 重複していない場合はkey発行、DB登録、メール送信、送信完了画面へ
 		String key = UUID.randomUUID().toString();
-		userService.insertAuthentication(email, key);
+		authenticationService.insertAuthentication(email, key);
 
 		// メール送信（service）
-		String url = mailService.generateUrl(key);
-		mailService.sendHtmlMail(email, url);
+		String url = authenticationService.generateUrl(key);
+		authenticationService.sendHtmlMail(email, url);
 
 		System.out.println("送信完了");
 		return "redirect:/register/email-finished";
@@ -95,7 +96,7 @@ public class UserController {
 	@RequestMapping("/insert")
 	public String index02(String key, Model model) {
 //		 keyを発行してない状態で/insertにアクセスしようとしたらエラーにしたい
-		List<Authentication> authenticationList = userService.findByKey(key);
+		List<Authentication> authenticationList = authenticationService.findByKey(key);
 		if (authenticationList.size() == 0) {
 			return "authentication_error.html";
 		}
@@ -108,7 +109,7 @@ public class UserController {
 	public String insert(@Validated UserForm form, BindingResult result, RedirectAttributes redirectAttributes,
 			Model model) {
 		String key = (String) session.getAttribute("key");
-		List<Authentication> authenticationList = userService.findByKey(key);
+		List<Authentication> authenticationList = authenticationService.findByKey(key);
 
 		// URLが無効になっていた場合初期画面へ
 		if (authenticationList.size() == 0) {

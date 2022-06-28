@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.domain.Authentication;
 import com.example.domain.User;
 import com.example.repository.UserRepository;
 
@@ -14,27 +13,9 @@ public class UserService {
 	@Autowired
 	private UserRepository repository;
 
-	public List<Authentication> findAuthentication(String email) {
-		List<Authentication> authenticationList = repository.findAuthentication(email);
-		return authenticationList;
-	}
-
-	public List<Authentication> findByKey(String key) {
-		List<Authentication> authenticationList = repository.findByKey(key);
-		return authenticationList;
-	}
-
 	public List<User> findByMailAddress(String email) {
 		List<User> userList = repository.findByMailAddress(email);
 		return userList;
-	}
-
-	public void insertAuthentication(String email, String key) {
-		Authentication authentication = new Authentication();
-		authentication.setMailAddress(email);
-		authentication.setUniqueKey(key);
-		authentication.setDeleted(0);
-		repository.insertAuthentication(authentication);
 	}
 
 	public void insertUser(User user) {
